@@ -1,21 +1,28 @@
+// Session.module.ts (hoặc bất kỳ module nào cần sử dụng IsUnique)
+
 import { Module } from '@nestjs/common';
+import { MongooseModule } from '@nestjs/mongoose';
 
-import { DocumentSessionPersistenceModule } from './infrastructure/persistence/document/document-persistence.module';
-import { RelationalSessionPersistenceModule } from './infrastructure/persistence/relational/relational-persistence.module';
+// Đường dẫn đến IsUnique decorator
+
 import { SessionService } from './session.service';
-import { DatabaseConfig } from '../database/config/database-config.type';
-import databaseConfig from '../database/config/database.config';
-
-// <database-block>
-const infrastructurePersistenceModule = (databaseConfig() as DatabaseConfig)
-  .isDocumentDatabase
-  ? DocumentSessionPersistenceModule
-  : RelationalSessionPersistenceModule;
-// </database-block>
+import { SessionSchemaFactory } from './entities/session.entity';
+import { SessionsRepository } from './repositories/session.repository';
 
 @Module({
-  imports: [infrastructurePersistenceModule],
-  providers: [SessionService],
-  exports: [SessionService, infrastructurePersistenceModule],
+  imports: [
+    MongooseModule.forFeatureAsync([
+      { name: 'Session', useFactory: SessionSchemaFactory },
+    ]),
+  ],
+
+  providers: [
+    SessionService,
+    {
+      provide: 'SessionsRepositoryInterface',
+      useClass: SessionsRepository,
+    },
+  ],
+  exports: [SessionService, SessionModule],
 })
 export class SessionModule {}

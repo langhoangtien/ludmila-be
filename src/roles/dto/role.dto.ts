@@ -1,9 +1,13 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNumber } from 'class-validator';
-import { Role } from '../domain/role';
+import { Allow, IsEnum, IsString } from 'class-validator';
 
-export class RoleDto implements Role {
+export class RoleDto {
+  @Allow()
   @ApiProperty()
-  @IsNumber()
-  id: number;
+  @IsString()
+  @IsEnum({})
+  id: string;
+
+  @Allow()
+  name?: string;
 }

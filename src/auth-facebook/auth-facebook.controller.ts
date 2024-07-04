@@ -31,6 +31,8 @@ export class AuthFacebookController {
   async login(
     @Body() loginDto: AuthFacebookLoginDto,
   ): Promise<LoginResponseType> {
+    console.log('loginDto', loginDto);
+
     const socialData =
       await this.authFacebookService.getProfileByToken(loginDto);
 

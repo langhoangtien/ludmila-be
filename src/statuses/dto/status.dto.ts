@@ -1,9 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Status } from '../domain/status';
-import { IsNumber } from 'class-validator';
+import { Allow, IsString } from 'class-validator';
 
-export class StatusDto implements Status {
+export class StatusDto {
   @ApiProperty()
-  @IsNumber()
-  id: number;
+  @IsString()
+  @Allow()
+  id: string;
+
+  @Allow()
+  name?: string;
 }

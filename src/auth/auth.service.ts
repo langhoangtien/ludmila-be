@@ -23,11 +23,11 @@ import { JwtPayloadType } from './strategies/types/jwt-payload.type';
 import { UsersService } from '../users/users.service';
 import { AllConfigType } from '../config/config.type';
 import { MailService } from '../mail/mail.service';
-import { RoleEnum } from '../roles/roles.enum';
-import { Session } from '../session/domain/session';
+
 import { SessionService } from '../session/session.service';
-import { StatusEnum } from '../statuses/statuses.enum';
-import { User } from '../users/domain/user';
+import { ROLE, STATUS, User } from '../users/entities/user.entity';
+import { Session } from '../session/entities/session.entity';
+import { MESSAGE_DICTIONARY } from '../constraints/message-dictionary.contraint';
 
 @Injectable()
 export class AuthService {
@@ -39,7 +39,7 @@ export class AuthService {
     private configService: ConfigService<AllConfigType>,
   ) {}
 
-  async validateLogin(loginDto: AuthEmailLoginDto): Promise<LoginResponseType> {
+  async validateLogin(loginDto: AuthEmailLoginDto): Promise<any> {
     const user = await this.usersService.findOne({
       email: loginDto.email,
     });
@@ -47,6 +47,7 @@ export class AuthService {
     if (!user) {
       throw new UnprocessableEntityException({
         status: HttpStatus.UNPROCESSABLE_ENTITY,
+        message: MESSAGE_DICTIONARY.WRONG_CREDENTIALS,
         errors: {
           email: 'notFound',
         },
@@ -139,12 +140,8 @@ export class AuthService {
     } else if (userByEmail) {
       user = userByEmail;
     } else if (socialData.id) {
-      const role = {
-        id: RoleEnum.user,
-      };
-      const status = {
-        id: StatusEnum.active,
-      };
+      const role = ROLE.CLIENT;
+      const status = STATUS.ACTIVE;
 
       user = await this.usersService.create({
         email: socialEmail ?? null,
@@ -203,12 +200,8 @@ export class AuthService {
     const user = await this.usersService.create({
       ...dto,
       email: dto.email,
-      role: {
-        id: RoleEnum.user,
-      },
-      status: {
-        id: StatusEnum.inactive,
-      },
+      role: ROLE.CLIENT,
+      status: STATUS.INACTIVE,
     });
 
     const hash = await this.jwtService.signAsync(
@@ -227,6 +220,7 @@ export class AuthService {
 
     await this.mailService.userSignUp({
       to: dto.email,
+      name: dto.lastName,
       data: {
         hash,
       },
@@ -234,11 +228,11 @@ export class AuthService {
   }
 
   async confirmEmail(hash: string): Promise<void> {
-    let userId: User['id'];
+    let userId: User['_id'];
 
     try {
       const jwtData = await this.jwtService.verifyAsync<{
-        confirmEmailUserId: User['id'];
+        confirmEmailUserId: User['_id'];
       }>(hash, {
         secret: this.configService.getOrThrow('auth.confirmEmailSecret', {
           infer: true,
@@ -255,34 +249,27 @@ export class AuthService {
       });
     }
 
-    const user = await this.usersService.findOne({
-      id: userId,
-    });
+    const user = await this.usersService.findById(userId.toString());
 
-    if (
-      !user ||
-      user?.status?.id?.toString() !== StatusEnum.inactive.toString()
-    ) {
+    if (!user || user?.status !== STATUS.INACTIVE) {
       throw new NotFoundException({
         status: HttpStatus.NOT_FOUND,
         error: `notFound`,
       });
     }
 
-    user.status = {
-      id: StatusEnum.active,
-    };
-
-    await this.usersService.update(user.id, user);
+    user.status = STATUS.ACTIVE;
+    if (user && user._id)
+      await this.usersService.update(user._id?.toString(), user);
   }
 
   async confirmNewEmail(hash: string): Promise<void> {
-    let userId: User['id'];
+    let userId: User['_id'];
     let newEmail: User['email'];
 
     try {
       const jwtData = await this.jwtService.verifyAsync<{
-        confirmEmailUserId: User['id'];
+        confirmEmailUserId: User['_id'];
         newEmail: User['email'];
       }>(hash, {
         secret: this.configService.getOrThrow('auth.confirmEmailSecret', {
@@ -301,9 +288,7 @@ export class AuthService {
       });
     }
 
-    const user = await this.usersService.findOne({
-      id: userId,
-    });
+    const user = await this.usersService.findById(userId.toString());
 
     if (!user) {
       throw new NotFoundException({
@@ -313,9 +298,7 @@ export class AuthService {
     }
 
     user.email = newEmail;
-    user.status = {
-      id: StatusEnum.active,
-    };
+    user.status = STATUS.ACTIVE;
 
     await this.usersService.update(user.id, user);
   }
@@ -354,6 +337,7 @@ export class AuthService {
 
     await this.mailService.forgotPassword({
       to: email,
+      name: user.lastName,
       data: {
         hash,
         tokenExpires,
@@ -362,11 +346,11 @@ export class AuthService {
   }
 
   async resetPassword(hash: string, password: string): Promise<void> {
-    let userId: User['id'];
+    let userId: User['_id'];
 
     try {
       const jwtData = await this.jwtService.verifyAsync<{
-        forgotUserId: User['id'];
+        forgotUserId: User['_id'];
       }>(hash, {
         secret: this.configService.getOrThrow('auth.forgotSecret', {
           infer: true,
@@ -383,9 +367,7 @@ export class AuthService {
       });
     }
 
-    const user = await this.usersService.findOne({
-      id: userId,
-    });
+    const user = await this.usersService.findById(userId.toString());
 
     if (!user) {
       throw new UnprocessableEntityException({
@@ -398,28 +380,25 @@ export class AuthService {
 
     user.password = password;
 
-    await this.sessionService.softDelete({
+    await this.sessionService.sessionSoftDelete({
       user: {
-        id: user.id,
+        id: user._id.toString(),
       },
     });
-
-    await this.usersService.update(user.id, user);
+    const salt = await bcrypt.genSalt();
+    user.password = await bcrypt.hash(user.password, salt);
+    await this.usersService.update(user._id.toString(), user);
   }
 
   async me(userJwtPayload: JwtPayloadType): Promise<NullableType<User>> {
-    return this.usersService.findOne({
-      id: userJwtPayload.id,
-    });
+    return this.usersService.findById(userJwtPayload.id);
   }
 
   async update(
     userJwtPayload: JwtPayloadType,
     userDto: AuthUpdateDto,
   ): Promise<NullableType<User>> {
-    const currentUser = await this.usersService.findOne({
-      id: userJwtPayload.id,
-    });
+    const currentUser = await this.usersService.findById(userJwtPayload.id);
 
     if (!currentUser) {
       throw new UnprocessableEntityException({
@@ -462,9 +441,9 @@ export class AuthService {
           },
         });
       } else {
-        await this.sessionService.softDelete({
+        await this.sessionService.sessionSoftDelete({
           user: {
-            id: currentUser.id,
+            id: currentUser._id.toString(),
           },
           excludeId: userJwtPayload.sessionId,
         });
@@ -476,7 +455,10 @@ export class AuthService {
         email: userDto.email,
       });
 
-      if (userByEmail && userByEmail.id !== currentUser.id) {
+      if (
+        userByEmail &&
+        userByEmail._id.toString() !== currentUser._id.toString()
+      ) {
         throw new UnprocessableEntityException({
           status: HttpStatus.UNPROCESSABLE_ENTITY,
           errors: {
@@ -487,7 +469,7 @@ export class AuthService {
 
       const hash = await this.jwtService.signAsync(
         {
-          confirmEmailUserId: currentUser.id,
+          confirmEmailUserId: currentUser._id,
           newEmail: userDto.email,
         },
         {
@@ -502,6 +484,7 @@ export class AuthService {
 
       await this.mailService.confirmNewEmail({
         to: userDto.email,
+        name: currentUser.lastName,
         data: {
           hash,
         },
@@ -513,17 +496,13 @@ export class AuthService {
 
     await this.usersService.update(userJwtPayload.id, userDto);
 
-    return this.usersService.findOne({
-      id: userJwtPayload.id,
-    });
+    return this.usersService.findById(userJwtPayload.id);
   }
 
   async refreshToken(
     data: Pick<JwtRefreshPayloadType, 'sessionId' | 'hash'>,
   ): Promise<Omit<LoginResponseType, 'user'>> {
-    const session = await this.sessionService.findOne({
-      id: data.sessionId,
-    });
+    const session = await this.sessionService.findById(data.sessionId);
 
     if (!session) {
       throw new UnauthorizedException();
@@ -538,9 +517,7 @@ export class AuthService {
       .update(randomStringGenerator())
       .digest('hex');
 
-    const user = await this.usersService.findOne({
-      id: session.user.id,
-    });
+    const user = await this.usersService.findById(session.user.id);
 
     if (!user?.role) {
       throw new UnauthorizedException();
@@ -552,9 +529,8 @@ export class AuthService {
 
     const { token, refreshToken, tokenExpires } = await this.getTokensData({
       id: session.user.id,
-      role: {
-        id: user.role.id,
-      },
+      role: user.role,
+
       sessionId: session.id,
       hash,
     });
@@ -567,17 +543,17 @@ export class AuthService {
   }
 
   async softDelete(user: User): Promise<void> {
-    await this.usersService.softDelete(user.id);
+    await this.usersService.remove(user._id.toString());
   }
 
   async logout(data: Pick<JwtRefreshPayloadType, 'sessionId'>) {
-    return this.sessionService.softDelete({
+    return this.sessionService.sessionSoftDelete({
       id: data.sessionId,
     });
   }
 
   private async getTokensData(data: {
-    id: User['id'];
+    id: User['_id'];
     role: User['role'];
     sessionId: Session['id'];
     hash: Session['hash'];

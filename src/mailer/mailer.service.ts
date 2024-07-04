@@ -9,15 +9,27 @@ import { AllConfigType } from '../config/config.type';
 export class MailerService {
   private readonly transporter: nodemailer.Transporter;
   constructor(private readonly configService: ConfigService<AllConfigType>) {
+    console.log('ENV', process.env.NODE_ENV);
+
+    // this.transporter = nodemailer.createTransport({
+    //   host: configService.get('mail.host', { infer: true }),
+    //   port: configService.get('mail.port', { infer: true }),
+    //   ignoreTLS: configService.get('mail.ignoreTLS', { infer: true }),
+    //   secure: configService.get('mail.secure', { infer: true }),
+    //   requireTLS: configService.get('mail.requireTLS', { infer: true }),
+    //   auth: {
+    //     user: configService.get('mail.user', { infer: true }),
+    //     pass: configService.get('mail.password', { infer: true }),
+    //   },
+    // });
+
     this.transporter = nodemailer.createTransport({
-      host: configService.get('mail.host', { infer: true }),
-      port: configService.get('mail.port', { infer: true }),
-      ignoreTLS: configService.get('mail.ignoreTLS', { infer: true }),
-      secure: configService.get('mail.secure', { infer: true }),
-      requireTLS: configService.get('mail.requireTLS', { infer: true }),
-      auth: {
-        user: configService.get('mail.user', { infer: true }),
-        pass: configService.get('mail.password', { infer: true }),
+      host: 'localhost',
+      port: 1025,
+      secure: false,
+      tls: {
+        // do not fail on invalid certs
+        rejectUnauthorized: false,
       },
     });
   }
@@ -30,6 +42,7 @@ export class MailerService {
     templatePath: string;
     context: Record<string, unknown>;
   }): Promise<void> {
+    console.log('SENDMIAL1', context);
     let html: string | undefined;
     if (templatePath) {
       const template = await fs.readFile(templatePath, 'utf-8');
@@ -49,5 +62,6 @@ export class MailerService {
           })}>`,
       html: mailOptions.html ? mailOptions.html : html,
     });
+    console.log('SENDMIAL');
   }
 }

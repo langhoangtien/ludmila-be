@@ -55,6 +55,7 @@ export class MailService {
         title: emailConfirmTitle,
         url: url.toString(),
         actionTitle: emailConfirmTitle,
+        name: mailData.name,
         app_name: this.configService.get('app.name', { infer: true }),
         text1,
         text2,
@@ -108,6 +109,7 @@ export class MailService {
         title: resetPasswordTitle,
         url: url.toString(),
         actionTitle: resetPasswordTitle,
+        name: mailData.name,
         app_name: this.configService.get('app.name', {
           infer: true,
         }),

@@ -1,10 +1,15 @@
-import { Transform, Type } from 'class-transformer';
+import { Transform } from 'class-transformer';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsEmail, IsNotEmpty, IsOptional, MinLength } from 'class-validator';
-import { FileDto } from '../../files/dto/file.dto';
-import { RoleDto } from '../../roles/dto/role.dto';
-import { StatusDto } from '../../statuses/dto/status.dto';
+import {
+  IsEmail,
+  IsEnum,
+  IsNotEmpty,
+  IsOptional,
+  Matches,
+  MinLength,
+} from 'class-validator';
 import { lowerCaseTransformer } from '../../utils/transformers/lower-case.transformer';
+import { ROLE, STATUS } from '../entities/user.entity';
 
 export class CreateUserDto {
   @ApiProperty({ example: 'test1@example.com' })
@@ -12,6 +17,13 @@ export class CreateUserDto {
   @IsNotEmpty()
   @IsEmail()
   email: string | null;
+
+  @ApiProperty()
+  @IsOptional()
+  @Matches(/((\+84|84|0)(3|5|7|8|9|1[2689]))([0-9]{8})\b/, {
+    message: 'Invalid phone number',
+  })
+  phoneNumber?: string;
 
   @ApiProperty()
   @MinLength(6)
@@ -29,19 +41,18 @@ export class CreateUserDto {
   @IsNotEmpty()
   lastName: string | null;
 
-  @ApiPropertyOptional({ type: () => FileDto })
+  @ApiPropertyOptional()
   @IsOptional()
-  photo?: FileDto | null;
+  photo?: string | null;
 
-  @ApiPropertyOptional({ type: RoleDto })
-  @IsOptional()
-  @Type(() => RoleDto)
-  role?: RoleDto | null;
+  @ApiPropertyOptional({ example: 'user' })
+  @IsEnum(ROLE)
+  role: ROLE;
 
-  @ApiPropertyOptional({ type: StatusDto })
+  @ApiPropertyOptional({ example: 'inactive' })
   @IsOptional()
-  @Type(() => StatusDto)
-  status?: StatusDto;
+  @IsEnum(STATUS)
+  status: STATUS;
 
   hash?: string | null;
 }

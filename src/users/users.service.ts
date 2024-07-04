@@ -1,196 +1,72 @@
-import {
-  HttpStatus,
-  Injectable,
-  UnprocessableEntityException,
-} from '@nestjs/common';
-import { CreateUserDto } from './dto/create-user.dto';
-import { NullableType } from '../utils/types/nullable.type';
-import { FilterUserDto, SortUserDto } from './dto/query-user.dto';
-import { UserRepository } from './infrastructure/persistence/user.repository';
-import { User } from './domain/user';
-import bcrypt from 'bcryptjs';
+import { Inject, Injectable } from '@nestjs/common';
+import { User } from './entities/user.entity'; // Assuming you have a User entity
+import { BaseServiceAbstract } from '../base/services/base.service.abstract';
+import { UsersRepositoryInterface } from './interfaces/user.interface'; // Assuming you have a UsersRepositoryInterface
+import { CreateUserDto } from './dto/create-user.dto'; // Assuming you have a CreateUserDto
 import { AuthProvidersEnum } from '../auth/auth-providers.enum';
-import { FilesService } from '../files/files.service';
-import { RoleEnum } from '../roles/roles.enum';
-import { StatusEnum } from '../statuses/statuses.enum';
-import { EntityCondition } from '../utils/types/entity-condition.type';
-import { IPaginationOptions } from '../utils/types/pagination-options';
-import { DeepPartial } from '../utils/types/deep-partial.type';
+import bcrypt from 'bcryptjs';
+import { FindAllResponse } from '../utils/types/find-all-reponse.type';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 @Injectable()
-export class UsersService {
+export class UsersService extends BaseServiceAbstract<User> {
   constructor(
-    private readonly usersRepository: UserRepository,
-    private readonly filesService: FilesService,
-  ) {}
+    @Inject('UsersRepositoryInterface')
+    private readonly userRepository: UsersRepositoryInterface,
+  ) {
+    super(userRepository);
+  }
 
-  async create(createProfileDto: CreateUserDto): Promise<User> {
-    const clonedPayload = {
-      provider: AuthProvidersEnum.email,
-      ...createProfileDto,
-    };
-
+  async create(createDto: CreateUserDto): Promise<User> {
+    const clonedPayload = { provider: AuthProvidersEnum.email, ...createDto };
     if (clonedPayload.password) {
       const salt = await bcrypt.genSalt();
       clonedPayload.password = await bcrypt.hash(clonedPayload.password, salt);
     }
 
-    if (clonedPayload.email) {
-      const userObject = await this.usersRepository.findOne({
-        email: clonedPayload.email,
-      });
-      if (userObject) {
-        throw new UnprocessableEntityException({
-          status: HttpStatus.UNPROCESSABLE_ENTITY,
-          errors: {
-            email: 'emailAlreadyExists',
-          },
-        });
-      }
-    }
-
-    if (clonedPayload.photo?.id) {
-      const fileObject = await this.filesService.findOne({
-        id: clonedPayload.photo.id,
-      });
-      if (!fileObject) {
-        throw new UnprocessableEntityException({
-          status: HttpStatus.UNPROCESSABLE_ENTITY,
-          errors: {
-            photo: 'imageNotExists',
-          },
-        });
-      }
-      clonedPayload.photo = fileObject;
-    }
-
-    if (clonedPayload.role?.id) {
-      const roleObject = Object.values(RoleEnum)
-        .map(String)
-        .includes(String(clonedPayload.role.id));
-      if (!roleObject) {
-        throw new UnprocessableEntityException({
-          status: HttpStatus.UNPROCESSABLE_ENTITY,
-          errors: {
-            role: 'roleNotExists',
-          },
-        });
-      }
-    }
-
-    if (clonedPayload.status?.id) {
-      const statusObject = Object.values(StatusEnum)
-        .map(String)
-        .includes(String(clonedPayload.status.id));
-      if (!statusObject) {
-        throw new UnprocessableEntityException({
-          status: HttpStatus.UNPROCESSABLE_ENTITY,
-          errors: {
-            status: 'statusNotExists',
-          },
-        });
-      }
-    }
-
-    return this.usersRepository.create(clonedPayload);
+    const user = await this.userRepository.create(clonedPayload); // Changed repository method call
+    return user;
   }
 
-  findManyWithPagination({
-    filterOptions,
-    sortOptions,
-    paginationOptions,
+  async update(id: string, payload: UpdateUserDto): Promise<User | null> {
+    // const clonedPayload = { ...payload };
+    // const user = await this.userRepository.findById(id);
+    // if (clonedPayload.password && clonedPayload.previousPassword) {
+    //   const isMatch = await bcrypt.compare(
+    //     clonedPayload.previousPassword,
+    //     user?.password || '',
+    //   );
+
+    //   if (!isMatch)
+    //     throw new UnprocessableEntityException({
+    //       status: HttpStatus.UNPROCESSABLE_ENTITY,
+    //       errors: {
+    //         password: 'incorrect password',
+    //       },
+    //     });
+    //   const salt = await bcrypt.genSalt();
+    //   clonedPayload.password = await bcrypt.hash(clonedPayload.password, salt);
+    // }
+
+    return await this.userRepository.update(id, payload);
+  }
+
+  async findAllWithPagination({
+    limit,
+    skip,
+    filter,
+    sort,
   }: {
-    filterOptions?: FilterUserDto | null;
-    sortOptions?: SortUserDto[] | null;
-    paginationOptions: IPaginationOptions;
-  }): Promise<User[]> {
-    return this.usersRepository.findManyWithPagination({
-      filterOptions,
-      sortOptions,
-      paginationOptions,
+    limit: number;
+    skip: number;
+    filter: any;
+    sort: any;
+  }): Promise<FindAllResponse<User>> {
+    return await this.userRepository.findAll(filter, '-password', {
+      limit,
+      skip,
+      sort,
+      // populate: ['vendor', 'category', 'country'],
     });
-  }
-
-  findOne(fields: EntityCondition<User>): Promise<NullableType<User>> {
-    return this.usersRepository.findOne(fields);
-  }
-
-  async update(
-    id: User['id'],
-    payload: DeepPartial<User>,
-  ): Promise<User | null> {
-    const clonedPayload = { ...payload };
-
-    if (
-      clonedPayload.password &&
-      clonedPayload.previousPassword !== clonedPayload.password
-    ) {
-      const salt = await bcrypt.genSalt();
-      clonedPayload.password = await bcrypt.hash(clonedPayload.password, salt);
-    }
-
-    if (clonedPayload.email) {
-      const userObject = await this.usersRepository.findOne({
-        email: clonedPayload.email,
-      });
-
-      if (userObject && userObject.id !== id) {
-        throw new UnprocessableEntityException({
-          status: HttpStatus.UNPROCESSABLE_ENTITY,
-          errors: {
-            email: 'emailAlreadyExists',
-          },
-        });
-      }
-    }
-
-    if (clonedPayload.photo?.id) {
-      const fileObject = await this.filesService.findOne({
-        id: clonedPayload.photo.id,
-      });
-      if (!fileObject) {
-        throw new UnprocessableEntityException({
-          status: HttpStatus.UNPROCESSABLE_ENTITY,
-          errors: {
-            photo: 'imageNotExists',
-          },
-        });
-      }
-      clonedPayload.photo = fileObject;
-    }
-
-    if (clonedPayload.role?.id) {
-      const roleObject = Object.values(RoleEnum)
-        .map(String)
-        .includes(String(clonedPayload.role.id));
-      if (!roleObject) {
-        throw new UnprocessableEntityException({
-          status: HttpStatus.UNPROCESSABLE_ENTITY,
-          errors: {
-            role: 'roleNotExists',
-          },
-        });
-      }
-    }
-
-    if (clonedPayload.status?.id) {
-      const statusObject = Object.values(StatusEnum)
-        .map(String)
-        .includes(String(clonedPayload.status.id));
-      if (!statusObject) {
-        throw new UnprocessableEntityException({
-          status: HttpStatus.UNPROCESSABLE_ENTITY,
-          errors: {
-            status: 'statusNotExists',
-          },
-        });
-      }
-    }
-
-    return this.usersRepository.update(id, clonedPayload);
-  }
-
-  async softDelete(id: User['id']): Promise<void> {
-    await this.usersRepository.softDelete(id);
   }
 }

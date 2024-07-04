@@ -4,13 +4,13 @@ import bcrypt from 'bcryptjs';
 import { Model } from 'mongoose';
 import { RoleEnum } from '../../../../roles/roles.enum';
 import { StatusEnum } from '../../../../statuses/statuses.enum';
-import { UserSchemaClass } from '../../../../users/infrastructure/persistence/document/entities/user.schema';
+import { User } from '../../../../users/entities/user.entity';
 
 @Injectable()
 export class UserSeedService {
   constructor(
-    @InjectModel(UserSchemaClass.name)
-    private readonly model: Model<UserSchemaClass>,
+    @InjectModel(User.name)
+    private readonly model: Model<User>,
   ) {}
 
   async run() {

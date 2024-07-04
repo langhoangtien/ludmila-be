@@ -1,16 +1,13 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { UserSeedService } from './user-seed.service';
-import {
-  UserSchemaClass,
-  UserSchema,
-} from '../../../../users/infrastructure/persistence/document/entities/user.schema';
+import { User, UserSchema } from '../../../../users/entities/user.entity';
 
 @Module({
   imports: [
     MongooseModule.forFeature([
       {
-        name: UserSchemaClass.name,
+        name: User.name,
         schema: UserSchema,
       },
     ]),

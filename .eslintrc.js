@@ -40,5 +40,11 @@ module.exports = {
         message: '"it" should start with "should"',
       },
     ],
+    'prettier/prettier': [
+      'error',
+      {
+        endOfLine: 'auto',
+      },
+    ],
   },
 };

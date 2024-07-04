@@ -32,6 +32,8 @@ export class AuthGoogleService {
 
     const data = ticket.getPayload();
 
+    console.log('data', data);
+
     if (!data) {
       throw new UnprocessableEntityException({
         status: HttpStatus.UNPROCESSABLE_ENTITY,

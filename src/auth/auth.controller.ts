@@ -22,7 +22,7 @@ import { AuthGuard } from '@nestjs/passport';
 import { AuthRegisterLoginDto } from './dto/auth-register-login.dto';
 import { LoginResponseType } from './types/login-response.type';
 import { NullableType } from '../utils/types/nullable.type';
-import { User } from '../users/domain/user';
+import { User } from '../users/entities/user.entity';
 
 @ApiTags('Auth')
 @Controller({
@@ -37,9 +37,7 @@ export class AuthController {
   })
   @Post('email/login')
   @HttpCode(HttpStatus.OK)
-  public login(
-    @Body() loginDto: AuthEmailLoginDto,
-  ): Promise<LoginResponseType> {
+  public async login(@Body() loginDto: AuthEmailLoginDto): Promise<any> {
     return this.service.validateLogin(loginDto);
   }
 

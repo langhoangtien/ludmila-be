@@ -1,39 +1,23 @@
-import { Injectable } from '@nestjs/common';
-
-import { SessionRepository } from './infrastructure/persistence/session.repository';
-import { Session } from './domain/session';
-import { User } from '../users/domain/user';
-import { EntityCondition } from '../utils/types/entity-condition.type';
-import { NullableType } from '../utils/types/nullable.type';
+import { Inject, Injectable } from '@nestjs/common';
+import { Session } from './entities/session.entity';
+import { BaseServiceAbstract } from '../base/services/base.service.abstract';
+import { SessionsRepositoryInterface } from './interfaces/session.interface';
+import { User } from '../users/entities/user.entity';
 
 @Injectable()
-export class SessionService {
-  constructor(private readonly sessionRepository: SessionRepository) {}
-
-  findOne(options: EntityCondition<Session>): Promise<NullableType<Session>> {
-    return this.sessionRepository.findOne(options);
+export class SessionService extends BaseServiceAbstract<Session> {
+  constructor(
+    @Inject('SessionsRepositoryInterface')
+    private readonly sessionRepository: SessionsRepositoryInterface,
+  ) {
+    super(sessionRepository);
   }
 
-  create(
-    data: Omit<Session, 'id' | 'createdAt' | 'updatedAt' | 'deletedAt'>,
-  ): Promise<Session> {
-    return this.sessionRepository.create(data);
-  }
-
-  update(
-    id: Session['id'],
-    payload: Partial<
-      Omit<Session, 'id' | 'createdAt' | 'updatedAt' | 'deletedAt'>
-    >,
-  ): Promise<Session | null> {
-    return this.sessionRepository.update(id, payload);
-  }
-
-  async softDelete(criteria: {
+  async sessionSoftDelete(criteria: {
     id?: Session['id'];
     user?: Pick<User, 'id'>;
     excludeId?: Session['id'];
   }): Promise<void> {
-    await this.sessionRepository.softDelete(criteria);
+    await this.sessionRepository.sessionSoftDelete(criteria);
   }
 }

@@ -1,5 +1,5 @@
-import { Session } from '../../../session/domain/session';
-import { User } from '../../../users/domain/user';
+import { Session } from '../../../session/entities/session.entity';
+import { User } from '../../../users/entities/user.entity';
 
 export type JwtPayloadType = Pick<User, 'id' | 'role'> & {
   sessionId: Session['id'];

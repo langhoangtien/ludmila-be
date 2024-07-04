@@ -6,8 +6,9 @@ import {
   ValidateNested,
 } from 'class-validator';
 import { Transform, Type, plainToInstance } from 'class-transformer';
-import { User } from '../domain/user';
+
 import { RoleDto } from '../../roles/dto/role.dto';
+import { User } from '../entities/user.entity';
 
 export class FilterUserDto {
   @ApiPropertyOptional({ type: RoleDto })
@@ -41,7 +42,7 @@ export class QueryUserDto {
   @IsOptional()
   limit?: number;
 
-  @ApiPropertyOptional({ type: String })
+  @ApiPropertyOptional({ type: String, example: { roles: [{ id: 0 }] } })
   @IsOptional()
   @Transform(({ value }) =>
     value ? plainToInstance(FilterUserDto, JSON.parse(value)) : undefined,
@@ -50,7 +51,10 @@ export class QueryUserDto {
   @Type(() => FilterUserDto)
   filters?: FilterUserDto | null;
 
-  @ApiPropertyOptional({ type: String })
+  @ApiPropertyOptional({
+    type: String,
+    example: [{ orderBy: 'id', order: 'ASC' }],
+  })
   @IsOptional()
   @Transform(({ value }) => {
     return value ? plainToInstance(SortUserDto, JSON.parse(value)) : undefined;
