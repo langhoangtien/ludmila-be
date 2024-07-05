@@ -1,4 +1,4 @@
-import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { UsersModule } from './users/users.module';
 import { FilesModule } from './files/files.module';
 import { AuthModule } from './auth/auth.module';
@@ -33,7 +33,6 @@ import { BrandsModule } from './brands/brands.module';
 import { CommentsModule } from './comments/comments.module';
 import { APP_FILTER } from '@nestjs/core';
 import { GlobalExceptionFilter } from './exception-filters/global-exception.filter';
-import { DelayResponseMiddleware } from './middlewares/delay.middleware';
 
 const infrastructureDatabaseModule = MongooseModule.forRootAsync({
   useClass: MongooseConfigService,
@@ -109,10 +108,4 @@ const infrastructureDatabaseModule = MongooseModule.forRootAsync({
     },
   ],
 })
-export class AppModule implements NestModule {
-  configure(consumer: MiddlewareConsumer) {
-    consumer.apply(DelayResponseMiddleware).forRoutes('*');
-  }
-}
-{
-}
+export class AppModule {}
