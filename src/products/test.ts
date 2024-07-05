@@ -1,4 +1,4 @@
-const attributes = [
+export const attributes = [
   {
     name: 'Size',
     values: ['S', 'XL', 'XXL'],

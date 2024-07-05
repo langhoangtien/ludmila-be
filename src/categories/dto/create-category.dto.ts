@@ -6,6 +6,7 @@ import {
   MinLength,
   MaxLength,
   Validate,
+  IsOptional,
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsSlug } from '../../utils/validators/slug-validate';
@@ -30,5 +31,6 @@ export class CreateCategoryDto {
 
   @ApiProperty({ example: 'tpcn' })
   @IsString()
+  @IsOptional()
   readonly parentId?: string;
 }
