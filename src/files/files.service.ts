@@ -5,6 +5,10 @@ import {
   // PayloadTooLargeException,
   UnprocessableEntityException,
 } from '@nestjs/common';
+import * as fs from 'fs';
+import * as util from 'util'; // Import util for promisify
+
+const fsMkdir = util.promisify(fs.mkdir); // Promisify fs.mkdir to use async/await
 
 // import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 // import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
@@ -132,6 +136,7 @@ export class FilesService {
     const metadataHeight = metadata.height;
     const metadataWidth = metadata.width;
     const dimensions: number[] = [250, 450, 800];
+
     const resizeImages = dimensions.map(async (dimension) => {
       let width = metadataWidth;
       let height = metadataHeight;
@@ -143,9 +148,24 @@ export class FilesService {
         width = Math.round((dimension * metadataWidth) / metadataHeight);
       }
 
-      return await sharp(inputPath)
-        .resize(width, height)
-        .toFile(`./files/${dimension}x${dimension}/${filename}`);
+      // Define directory path
+      const directoryPath = `./files/${dimension}x${dimension}`;
+
+      try {
+        // Check if directory exists, create it if not
+        await fsMkdir(directoryPath, { recursive: true });
+
+        // Resize image and save to file
+        await sharp(inputPath)
+          .resize(width, height)
+          .toFile(`${directoryPath}/${filename}`);
+      } catch (err) {
+        console.error(
+          `Error resizing and saving image for dimension ${dimension}:`,
+          err,
+        );
+        // Handle error, throw or log as needed
+      }
     });
 
     await Promise.all(resizeImages);
