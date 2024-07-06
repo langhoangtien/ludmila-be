@@ -59,7 +59,7 @@ export class BaseQueryDto<T> {
   filterRaw?: any;
   @ApiPropertyOptional({
     type: String,
-    example: { orderBy: 'createdAt', order: 'asc' },
+    example: { orderBy: 'createdAt', order: '1' },
   })
   @IsOptional()
   @Transform(({ value }) => {

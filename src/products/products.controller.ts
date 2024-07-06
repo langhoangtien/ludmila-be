@@ -49,6 +49,7 @@ export class ProductsController {
     const country = query?.filterRaw?.country ?? undefined;
     const price = query?.filterRaw?.price ?? undefined;
     const rating = query?.filterRaw?.rating ?? undefined;
+    const search = query?.filterRaw?.search ?? undefined;
     let filterObject: any = { ...query?.filter };
     if (rating) {
       const ratingFilter = { ratingAverage: { $gte: +rating } };
@@ -63,6 +64,16 @@ export class ProductsController {
       };
 
       filterObject = { ...filterObject, ...brandFilter };
+    }
+    if (search) {
+      const searchFilter = {
+        $or: [
+          { name: { $regex: search, $options: 'i' } },
+          { code: { $regex: search, $options: 'i' } },
+          { slug: { $regex: search, $options: 'i' } },
+        ],
+      };
+      filterObject = { ...filterObject, ...searchFilter };
     }
     if (category && category.length > 0) {
       const categoryFilter = {
