@@ -16,4 +16,8 @@ export class HomeController {
   async getProductReferenceData() {
     return this.service.getProductReferenceData();
   }
+  @Get('menu')
+  async getMenu() {
+    return this.service.getMenu();
+  }
 }

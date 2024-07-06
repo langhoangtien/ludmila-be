@@ -11,4 +11,28 @@ export class CategoriesService extends BaseServiceAbstract<Category> {
   ) {
     super(categoryRepository);
   }
+  async getCategoriesWithChild() {
+    return this.categoryRepository.aggregate([
+      {
+        $match: {
+          parentId: null,
+          deletedAt: null,
+        },
+      },
+      {
+        $skip: 0,
+      },
+      {
+        $limit: 4,
+      },
+      {
+        $lookup: {
+          from: 'categories',
+          localField: '_id',
+          foreignField: 'parentId',
+          as: 'children',
+        },
+      },
+    ]);
+  }
 }

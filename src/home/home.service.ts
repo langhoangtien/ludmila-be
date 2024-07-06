@@ -28,6 +28,9 @@ export class HomeService {
     return { categories: data[0], brands: data[1], countries: data[2] };
   }
 
+  async getMenu() {
+    return this.categoryService.getCategoriesWithChild();
+  }
   async getHomeData() {
     const topDiscountProducts = await this.productService.aggregate({
       skip: 0,
