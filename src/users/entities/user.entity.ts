@@ -37,8 +37,10 @@ export class User extends BaseEntity {
   @Prop({
     type: String,
     unique: true,
+  
+    sparse:true
   })
-  phoneNumber?: string;
+  phoneNumber: string;
 
   @Exclude({ toPlainOnly: true })
   previousPassword?: string;
