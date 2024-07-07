@@ -30,8 +30,7 @@ export class OrdersService extends BaseServiceAbstract<Order> {
       (productVariant) =>
         new mongoose.Types.ObjectId(productVariant.productVariantId),
     );
-    // console.log('ProductVariantIds', productVariantIds);
-    // return null;
+
     const productsData = await this.productVariantService.aggregate([
       {
         $match: {
@@ -94,6 +93,13 @@ export class OrdersService extends BaseServiceAbstract<Order> {
       subTotal,
     };
     return this.orderRepository.create(clonePayload);
+  }
+
+  async findMyOrders(query: any): Promise<any> {
+    return this.orderRepository.find({
+      ...query,
+      filter: { ...query.filter, deletedAt: null },
+    });
   }
 
   async update(

@@ -6,6 +6,7 @@ import {
   Patch,
   Param,
   Delete,
+  Request,
   HttpCode,
   HttpStatus,
   Query,
@@ -25,11 +26,10 @@ import { RolesGuard } from '../roles/roles.guard';
 import { ROLE } from '../users/entities/user.entity';
 import { JwtAccessTokenGuard } from '../auth/guards/jwt-access-token.guard';
 import { Public } from '../auth/decorators/auth.decorator';
+import { AuthGuard } from '@nestjs/passport';
 
 @ApiTags('Orders')
 @Controller({ path: 'orders', version: '1' })
-@Roles(ROLE.ADMIN)
-@UseGuards(JwtAccessTokenGuard, RolesGuard)
 export class OrdersController {
   constructor(private readonly ordersService: OrdersService) {}
 
@@ -40,6 +40,8 @@ export class OrdersController {
     return this.ordersService.create(createOrderDto);
   }
 
+  @Roles(ROLE.ADMIN)
+  @UseGuards(JwtAccessTokenGuard, RolesGuard)
   @Get()
   @HttpCode(HttpStatus.OK)
   findAll(@Query() query: BaseQueryDto<Order>) {
@@ -61,7 +63,31 @@ export class OrdersController {
       sort,
     });
   }
+  @Roles(ROLE.ADMIN)
+  @UseGuards(AuthGuard('jwt'))
+  @HttpCode(HttpStatus.OK)
+  me(@Request() request, @Query() query: BaseQueryDto<Order>) {
+    const skip = query?.skip ?? 0;
+    let limit = query?.limit ?? 10;
+    if (limit > 100) {
+      limit = 100;
+    }
+    const filter = { userId: request.user.id };
+    const sortQuery = query?.sort ?? { orderBy: 'createdAt', order: 1 };
 
+    const sort = {
+      [sortQuery.orderBy]: sortQuery.order,
+    };
+    return this.ordersService.findMyOrders({
+      skip,
+      limit,
+      filter,
+      sort,
+    });
+  }
+
+  @Roles(ROLE.ADMIN)
+  @UseGuards(JwtAccessTokenGuard, RolesGuard)
   @SerializeOptions({
     groups: ['admin'],
   })
@@ -76,6 +102,8 @@ export class OrdersController {
     return this.ordersService.findById(id);
   }
 
+  @Roles(ROLE.ADMIN)
+  @UseGuards(JwtAccessTokenGuard, RolesGuard)
   @SerializeOptions({
     groups: ['admin'],
   })
@@ -88,6 +116,8 @@ export class OrdersController {
     return this.ordersService.update(id, updateOrderDto);
   }
 
+  @Roles(ROLE.ADMIN)
+  @UseGuards(JwtAccessTokenGuard, RolesGuard)
   @Delete(':id')
   @ApiParam({
     name: 'id',
@@ -99,6 +129,8 @@ export class OrdersController {
     return this.ordersService.remove(id);
   }
 
+  @Roles(ROLE.ADMIN)
+  @UseGuards(JwtAccessTokenGuard, RolesGuard)
   @Delete('delete/:id')
   @ApiParam({
     name: 'id',
