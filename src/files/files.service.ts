@@ -28,6 +28,12 @@ export enum DIMENSION {
   D450 = 450,
   D800 = 800,
 }
+export enum DIMENSION_FOLDER {
+  D250 = '250x250',
+  D450 = '450x450',
+  D800 = '800x800',
+  ORIGIN = 'originals',
+}
 @Injectable()
 export class FilesService {
   // private s3: S3Client;
@@ -117,14 +123,8 @@ export class FilesService {
       }),
     };
   }
-  async resizeImage({
-    inputPath,
-    filename,
-  }: {
-    inputPath: string;
-    filename: string;
-  }): Promise<void> {
-    const metadata = await sharp(inputPath).metadata();
+  async resizeImage(file): Promise<void> {
+    const metadata = await sharp(file.path).metadata();
     if (
       !metadata ||
       typeof metadata.width !== 'number' ||
@@ -135,7 +135,7 @@ export class FilesService {
 
     const metadataHeight = metadata.height;
     const metadataWidth = metadata.width;
-    const dimensions: number[] = [250, 450, 800];
+    const dimensions: number[] = [250, 450, 800, 0];
 
     const resizeImages = dimensions.map(async (dimension) => {
       let width = metadataWidth;
@@ -148,17 +148,22 @@ export class FilesService {
         width = Math.round((dimension * metadataWidth) / metadataHeight);
       }
 
-      // Define directory path
-      const directoryPath = `./files/${dimension}x${dimension}`;
+      let directoryPath = './files';
+      if (dimension) directoryPath = `./files/${dimension}x${dimension}`;
 
       try {
         // Check if directory exists, create it if not
         await fsMkdir(directoryPath, { recursive: true });
 
-        // Resize image and save to file
-        await sharp(inputPath)
-          .resize(width, height)
-          .toFile(`${directoryPath}/${filename}`);
+        if (dimension)
+          await sharp(file.path)
+            .webp()
+            .resize(width, height)
+            .toFile(`${directoryPath}/${file.filename.split('.')[0]}.webp`);
+        else
+          await sharp(file.path)
+            .webp()
+            .toFile(`${directoryPath}/${file.filename.split('.')[0]}.webp`);
       } catch (err) {
         console.error(
           `Error resizing and saving image for dimension ${dimension}:`,
@@ -181,14 +186,13 @@ export class FilesService {
           },
         });
       }
+      console.log('file', file);
 
-      await this.resizeImage({
-        inputPath: file.path,
-        filename: file.filename,
-      });
+      await this.resizeImage(file);
       // PHAI THAY
       return await this.fileRepository.create({
-        path: file.filename,
+        originPath: `${file.filename}`,
+        path: `${file.filename.split('.')[0]}.webp`,
       });
     } catch (error) {
       throw new UnprocessableEntityException({

@@ -55,6 +55,8 @@ export class FileUpload {
   //   },
   // )
   path: string;
+  @Prop()
+  originPath: string;
 }
 
 export const FileUploadSchema = SchemaFactory.createForClass(FileUpload);

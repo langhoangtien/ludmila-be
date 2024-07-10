@@ -11,7 +11,7 @@ import {
 import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { ApiBody, ApiConsumes, ApiParam, ApiTags } from '@nestjs/swagger';
 
-import { FilesService } from './files.service';
+import { DIMENSION_FOLDER, FilesService } from './files.service';
 
 @ApiTags('Files')
 @Controller({
@@ -68,7 +68,22 @@ export class FilesController {
     name: 'path',
     type: 'string',
   })
-  download(@Param('path') path, @Response() response) {
-    return response.sendFile(path, { root: './files' });
+  download(@Param('path') filename, @Response() response) {
+    console.log('filename', filename);
+
+    return response.sendFile(filename, { root: './files' });
+  }
+  @Get(':dimension/:path')
+  @ApiParam({
+    name: 'path',
+    type: 'string',
+  })
+  downloadWithDimension(
+    @Param('dimension') dimension: DIMENSION_FOLDER,
+    @Param('path') filename,
+
+    @Response() response,
+  ) {
+    return response.sendFile(filename, { root: './files/' + dimension });
   }
 }

@@ -6,6 +6,5 @@ export class FileDto implements FileType {
   @ApiProperty()
   @IsString()
   id: string;
-
   path: string;
 }

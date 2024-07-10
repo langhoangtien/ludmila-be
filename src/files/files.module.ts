@@ -39,7 +39,7 @@ const FilesLocalModule = MulterModule.registerAsync({
         callback(null, true);
       },
       storage: diskStorage({
-        destination: './files',
+        destination: './files/originals/',
         filename: (request, file, callback) => {
           callback(
             null,
