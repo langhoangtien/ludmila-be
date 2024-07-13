@@ -9,7 +9,7 @@ import {
   MinLength,
 } from 'class-validator';
 import { lowerCaseTransformer } from '../../utils/transformers/lower-case.transformer';
-import { ROLE, STATUS } from '../entities/user.entity';
+import { PROVINCES, ROLE, STATUS } from '../entities/user.entity';
 
 export class CreateUserDto {
   @ApiProperty({ example: 'test1@example.com' })
@@ -40,6 +40,14 @@ export class CreateUserDto {
   @ApiProperty({ example: 'Doe' })
   @IsNotEmpty()
   lastName: string | null;
+
+  birthday?: Date;
+
+  @ApiPropertyOptional({ example: 'inactive' })
+  @IsOptional()
+  @IsEnum(PROVINCES)
+  province?: PROVINCES;
+  adress?: string;
 
   @ApiPropertyOptional()
   @IsOptional()

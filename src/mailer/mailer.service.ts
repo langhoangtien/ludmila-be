@@ -22,16 +22,27 @@ export class MailerService {
     //     pass: configService.get('mail.password', { infer: true }),
     //   },
     // });
-
     this.transporter = nodemailer.createTransport({
-      host: 'localhost',
-      port: 1025,
-      secure: false,
-      tls: {
-        // do not fail on invalid certs
-        rejectUnauthorized: false,
+      service: 'gmail',
+      auth: {
+        type: 'OAuth2',
+        user: process.env.MAIL_USERNAME,
+        pass: process.env.MAIL_PASSWORD,
+        clientId: process.env.MAIL_CLIENT_ID,
+        clientSecret: process.env.MAIL_CLIENT_SECRET,
+        refreshToken: process.env.MAIL_REFRESH_TOKEN,
       },
     });
+
+    //   this.transporter = nodemailer.createTransport({
+    //     host: 'localhost',
+    //     port: 1025,
+    //     secure: false,
+    //     tls: {
+    //       // do not fail on invalid certs
+    //       rejectUnauthorized: false,
+    //     },
+    //   });
   }
 
   async sendMail({

@@ -5,8 +5,7 @@ import {
   IsArray,
   ArrayMinSize,
   ValidateNested,
-  Min,
-  Max,
+  Validate,
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
@@ -14,17 +13,17 @@ import { Type } from 'class-transformer';
 
 import { CreateProductVariantAttributeDto } from './create-product-variant-attibute.dto';
 import mongoose from 'mongoose';
+import { SalePrice } from '../../utils/validators/sale-price-validate';
 
 export class CreateProductVariantDto {
   @ApiProperty({ example: 200, default: 0 })
   @IsNumber()
   readonly price: number;
 
-  @ApiProperty({ example: 0, default: 0, minimum: 0, maximum: 100 })
+  @ApiProperty({ example: 0, default: 0 })
   @IsNumber()
-  @Min(0)
-  @Max(100)
-  readonly discount: number;
+  @Validate(SalePrice)
+  readonly salePrice: number;
 
   @ApiProperty({ example: 200, default: 0 })
   @IsNumber()

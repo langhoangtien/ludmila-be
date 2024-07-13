@@ -1,8 +1,18 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { IsEmail, IsNotEmpty, IsOptional, MinLength } from 'class-validator';
+import {
+  IsEmail,
+  IsEnum,
+  IsNotEmpty,
+  IsOptional,
+  Matches,
+  MaxLength,
+  MinLength,
+} from 'class-validator';
 
 import { Transform } from 'class-transformer';
 import { lowerCaseTransformer } from '../../utils/transformers/lower-case.transformer';
+import { PROVINCES } from '../../users/entities/user.entity';
+import { GENDER } from '../../customers/entities/customer.entity';
 
 export class AuthUpdateDto {
   @ApiPropertyOptional()
@@ -12,12 +22,44 @@ export class AuthUpdateDto {
   @ApiPropertyOptional({ example: 'John' })
   @IsOptional()
   @IsNotEmpty({ message: 'mustBeNotEmpty' })
+  @MaxLength(50, { message: 'firstNameIsTooLong' })
   firstName?: string;
 
   @ApiPropertyOptional({ example: 'Doe' })
   @IsOptional()
+  @MaxLength(50, { message: 'lastNameIsTooLong' })
   @IsNotEmpty({ message: 'mustBeNotEmpty' })
   lastName?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsNotEmpty({ message: 'mustBeNotEmpty' })
+  birthday?: Date;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsNotEmpty({ message: 'mustBeNotEmpty' })
+  @IsEnum(GENDER)
+  gender?: GENDER;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsNotEmpty({ message: 'mustBeNotEmpty' })
+  @Matches(/((\+84|84|0)(3|5|7|8|9|1[2689]))([0-9]{8})\b/, {
+    message: 'Invalid Vietnamese phone number',
+  })
+  phoneNumber?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsNotEmpty({ message: 'mustBeNotEmpty' })
+  @IsEnum(PROVINCES)
+  province?: PROVINCES;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsNotEmpty({ message: 'mustBeNotEmpty' })
+  address?: string;
 
   @ApiPropertyOptional({ example: 'new.email@example.com' })
   @IsOptional()

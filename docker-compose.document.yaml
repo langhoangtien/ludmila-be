@@ -1,3 +1,5 @@
+version: '3.8'
+
 services:
   maildev:
     build:
@@ -27,12 +29,6 @@ services:
       ME_CONFIG_BASICAUTH_USERNAME: ${DATABASE_USERNAME}
       ME_CONFIG_BASICAUTH_PASSWORD: ${DATABASE_PASSWORD}
       ME_CONFIG_MONGODB_URL: mongodb://${DATABASE_USERNAME}:${DATABASE_PASSWORD}@mongo:${DATABASE_PORT}/
-
-  # Uncomment to use redis
-  # redis:
-  #   image: redis:7-alpine
-  #   ports:
-  #     - 6379:6379
 
   api:
     build:

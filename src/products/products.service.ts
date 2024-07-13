@@ -28,7 +28,7 @@ export class ProductsService extends BaseServiceAbstract<Product> {
     const variants = createDto.variants.map((variant) => ({
       ...variant,
       productId: newProduct._id,
-      salePrice: caculateSalePrice(variant.price, variant.discount),
+      discount: caculateDiscount(variant.price, variant.salePrice),
     }));
     await this.productVariantSevice.create(variants);
 
@@ -50,13 +50,14 @@ export class ProductsService extends BaseServiceAbstract<Product> {
         variantIds = variantIds.filter((id) => variant._id !== id);
         return await this.productVariantSevice.update(variant._id, {
           ...variant,
-          salePrice: caculateSalePrice(variant.price, variant.discount),
+
+          discount: caculateDiscount(variant.price, variant.salePrice),
         });
       }
 
       return await this.productVariantSevice.create({
         ...variant,
-        salePrice: caculateSalePrice(variant.price, variant.discount),
+        discount: caculateDiscount(variant.price, variant.salePrice),
         productId: oldVariants[0].productId,
       });
     });
@@ -415,6 +416,7 @@ export class ProductsService extends BaseServiceAbstract<Product> {
   }
 }
 
-function caculateSalePrice(price: number, discount: number) {
-  return Math.round((price * (100 - discount)) / 100);
+function caculateDiscount(price: number, salePrice: number) {
+  if (price === 0) return 0;
+  return Math.round(((price - salePrice) / price) * 100);
 }
