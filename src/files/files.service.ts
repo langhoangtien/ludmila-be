@@ -186,7 +186,6 @@ export class FilesService {
           },
         });
       }
-      console.log('file', file);
 
       await this.resizeImage(file);
       // PHAI THAY
@@ -217,14 +216,11 @@ export class FilesService {
       );
     }
 
-    const paths = files.map((file) => ({
-      path: file.filename,
-    }));
-
-    return Promise.all(paths.map((e) => this.getListFile(e)));
+    // const paths = files
+    return Promise.all(files.map((e) => this.getListFile(e)));
   }
 
   async getListFile(item) {
-    return await this.fileRepository.create(item);
+    return await this.create(item);
   }
 }

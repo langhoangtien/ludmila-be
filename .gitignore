@@ -36,5 +36,6 @@ lerna-debug.log*
 
 .data
 /files
+/docker-data
 .env
 /ormconfig.json
