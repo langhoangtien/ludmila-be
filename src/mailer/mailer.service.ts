@@ -11,28 +11,26 @@ export class MailerService {
   constructor(private readonly configService: ConfigService<AllConfigType>) {
     console.log('ENV', process.env.NODE_ENV);
 
-    // this.transporter = nodemailer.createTransport({
-    //   host: configService.get('mail.host', { infer: true }),
-    //   port: configService.get('mail.port', { infer: true }),
-    //   ignoreTLS: configService.get('mail.ignoreTLS', { infer: true }),
-    //   secure: configService.get('mail.secure', { infer: true }),
-    //   requireTLS: configService.get('mail.requireTLS', { infer: true }),
-    //   auth: {
-    //     user: configService.get('mail.user', { infer: true }),
-    //     pass: configService.get('mail.password', { infer: true }),
-    //   },
-    // });
     this.transporter = nodemailer.createTransport({
-      service: 'gmail',
+      host: configService.get('mail.host', { infer: true }),
+      port: configService.get('mail.port', { infer: true }),
+      secure: false,
       auth: {
-        type: 'OAuth2',
-        user: process.env.MAIL_USERNAME,
-        pass: process.env.MAIL_PASSWORD,
-        clientId: process.env.MAIL_CLIENT_ID,
-        clientSecret: process.env.MAIL_CLIENT_SECRET,
-        refreshToken: process.env.MAIL_REFRESH_TOKEN,
+        user: configService.get('mail.user', { infer: true }),
+        pass: configService.get('mail.password', { infer: true }),
       },
     });
+    // this.transporter = nodemailer.createTransport({
+    //   service: 'gmail',
+    //   auth: {
+    //     type: 'OAuth2',
+    //     user: process.env.MAIL_USERNAME,
+    //     pass: process.env.MAIL_PASSWORD,
+    //     clientId: process.env.MAIL_CLIENT_ID,
+    //     clientSecret: process.env.MAIL_CLIENT_SECRET,
+    //     refreshToken: process.env.MAIL_REFRESH_TOKEN,
+    //   },
+    // });
 
     //   this.transporter = nodemailer.createTransport({
     //     host: 'localhost',
