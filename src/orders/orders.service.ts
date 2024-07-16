@@ -8,6 +8,7 @@ import mongoose from 'mongoose';
 import { CustomersService } from '../customers/customers.service';
 import { NullableType } from '../utils/types/nullable.type';
 import { getUniqueByProperty } from '../utils/common';
+import { JwtPayloadType } from '../auth/strategies/types/jwt-payload.type';
 
 const SHIPPING_FEE = 30000;
 const SHIPPING_FEE_THRESHOLD = 500000;
@@ -21,7 +22,10 @@ export class OrdersService extends BaseServiceAbstract<Order> {
   ) {
     super(orderRepository);
   }
-  async create(createDto: CreateOrderDto): Promise<any> {
+  async createOrder(
+    createDto: CreateOrderDto,
+    user: JwtPayloadType | undefined,
+  ): Promise<any> {
     // KHông cần thiết
     const productVariantIds = getUniqueByProperty(
       createDto.products,
@@ -56,6 +60,7 @@ export class OrdersService extends BaseServiceAbstract<Order> {
           price: 1,
           name: '$product.name',
           productImage: '$product.image',
+          productId: '$product._id',
         },
       },
     ]);
@@ -74,7 +79,8 @@ export class OrdersService extends BaseServiceAbstract<Order> {
         image: product.image || product.productImage || undefined,
         quantity,
         price: product.salePrice,
-        productVariantId: product._id.toString(),
+        productVariantId: product._id,
+        productId: product.productId,
       };
     });
 
@@ -91,14 +97,19 @@ export class OrdersService extends BaseServiceAbstract<Order> {
       status: 'new',
       shippingFee,
       subTotal,
+      userId: user?.id,
     };
+    console.log('CLONE', clonePayload);
+
     return this.orderRepository.create(clonePayload);
   }
 
-  async findMyOrders(query: any): Promise<any> {
-    return this.orderRepository.find({
-      ...query,
-      filter: { ...query.filter, deletedAt: null },
+  async findMyOrders({ filter, limit, skip, sort }): Promise<any> {
+    return this.orderRepository.findAllWithPagination({
+      filter: { ...filter, deletedAt: null },
+      limit,
+      skip,
+      sort,
     });
   }
 

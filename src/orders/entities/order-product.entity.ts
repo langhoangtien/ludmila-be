@@ -2,6 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { BaseEntity } from '../../base/entities/base.entity';
 import { ProductVariant } from '../../product-variants/entities/product-variant.entity';
 import mongoose, { HydratedDocument } from 'mongoose';
+import { Product } from '../../products/entities/product.entity';
 
 export type OrderProductDocument = HydratedDocument<OrderProduct>;
 
@@ -13,7 +14,12 @@ export class OrderProduct extends BaseEntity {
     required: true,
   })
   productVariantId: ProductVariant;
-
+  @Prop({
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Product',
+    required: true,
+  })
+  productId: Product;
   @Prop({
     required: true,
     min: 1,

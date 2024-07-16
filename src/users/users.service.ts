@@ -47,7 +47,7 @@ export class UsersService extends BaseServiceAbstract<User> {
     //   const salt = await bcrypt.genSalt();
     //   clonedPayload.password = await bcrypt.hash(clonedPayload.password, salt);
     // }
-    console.log('payload', payload);
+ 
 
     return await this.userRepository.update(id, payload);
   }

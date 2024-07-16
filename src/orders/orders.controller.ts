@@ -25,8 +25,9 @@ import { Roles } from '../roles/roles.decorator';
 import { RolesGuard } from '../roles/roles.guard';
 import { ROLE } from '../users/entities/user.entity';
 import { JwtAccessTokenGuard } from '../auth/guards/jwt-access-token.guard';
-import { Public } from '../auth/decorators/auth.decorator';
+
 import { AuthGuard } from '@nestjs/passport';
+import { OptionalAuthGuard } from '../auth/guards/optional-auth.guard';
 
 @ApiTags('Orders')
 @Controller({ path: 'orders', version: '1' })
@@ -35,9 +36,12 @@ export class OrdersController {
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  @Public()
-  create(@Body() createOrderDto: CreateOrderDto): Promise<Order> {
-    return this.ordersService.create(createOrderDto);
+  @UseGuards(OptionalAuthGuard)
+  create(
+    @Body() createOrderDto: CreateOrderDto,
+    @Request() request,
+  ): Promise<Order> {
+    return this.ordersService.createOrder(createOrderDto, request.user);
   }
 
   @Roles(ROLE.ADMIN)
@@ -63,9 +67,10 @@ export class OrdersController {
       sort,
     });
   }
-  @Roles(ROLE.ADMIN)
+
   @UseGuards(AuthGuard('jwt'))
   @HttpCode(HttpStatus.OK)
+  @Get('me')
   me(@Request() request, @Query() query: BaseQueryDto<Order>) {
     const skip = query?.skip ?? 0;
     let limit = query?.limit ?? 10;

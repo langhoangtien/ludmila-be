@@ -17,6 +17,7 @@ import { GENDER } from '../../customers/entities/customer.entity';
 export class AuthUpdateDto {
   @ApiPropertyOptional()
   @IsOptional()
+  @MaxLength(100, { message: 'fileURLIsTooLong' })
   photo?: string | null;
 
   @ApiPropertyOptional({ example: 'John' })
@@ -57,8 +58,8 @@ export class AuthUpdateDto {
   province?: PROVINCES;
 
   @ApiPropertyOptional()
+  @MaxLength(255, { message: 'addressIsTooLong' })
   @IsOptional()
-  @IsNotEmpty({ message: 'mustBeNotEmpty' })
   address?: string;
 
   @ApiPropertyOptional({ example: 'new.email@example.com' })

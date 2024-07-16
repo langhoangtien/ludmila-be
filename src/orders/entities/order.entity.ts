@@ -29,7 +29,7 @@ export enum PAYMENT_METHOD {
 @Schema({ timestamps: true })
 export class Order extends BaseEntity {
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User' })
-  user?: User;
+  userId?: User;
 
   @Prop({
     type: [{ type: OrderProduct }],
