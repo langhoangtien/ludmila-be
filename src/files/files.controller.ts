@@ -6,12 +6,14 @@ import {
   Response,
   UploadedFile,
   UploadedFiles,
+  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { ApiBody, ApiConsumes, ApiParam, ApiTags } from '@nestjs/swagger';
 
 import { DIMENSION_FOLDER, FilesService } from './files.service';
+import { AuthGuard } from '@nestjs/passport';
 
 @ApiTags('Files')
 @Controller({
@@ -20,9 +22,7 @@ import { DIMENSION_FOLDER, FilesService } from './files.service';
 })
 export class FilesController {
   constructor(private readonly filesService: FilesService) {}
-
-  // @ApiBearerAuth()
-  // @UseGuards(AuthGuard('jwt'))
+  @UseGuards(AuthGuard('jwt'))
   @Post()
   @ApiConsumes('multipart/form-data')
   @ApiBody({
@@ -58,6 +58,7 @@ export class FilesController {
     },
   })
   @Post('upload-multiple')
+  @UseGuards(AuthGuard('jwt'))
   @UseInterceptors(FilesInterceptor('files'))
   uploadFiles(@UploadedFiles() files: Array<Express.Multer.File>) {
     return this.filesService.uploadFiles(files);
