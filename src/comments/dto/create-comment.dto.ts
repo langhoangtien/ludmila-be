@@ -44,4 +44,9 @@ export class CreateCommentDto {
   @IsString()
   @IsNotEmpty()
   readonly productId: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsOptional()
+  readonly parentId?: string;
 }

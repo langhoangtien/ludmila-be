@@ -47,6 +47,7 @@ export class CommentsController {
         userId: request.user.id,
         content: createCommentDto.content,
         rating: createCommentDto.rating,
+        parentId: createCommentDto.parentId,
       };
     } else {
       payload = {
@@ -55,6 +56,7 @@ export class CommentsController {
         phoneNumber: createCommentDto.phoneNumber,
         content: createCommentDto.content,
         rating: createCommentDto.rating,
+        parentId: createCommentDto.parentId,
       };
     }
 
@@ -71,8 +73,10 @@ export class CommentsController {
     }
     const filter = query?.filter ?? {};
     const productId = query?.productId;
+    const parentId = query?.parentId;
     const filterObject = {
       productId: new mongoose.Types.ObjectId(productId),
+      parentId: parentId ? new mongoose.Types.ObjectId(parentId) : null,
       ...filter,
     };
 

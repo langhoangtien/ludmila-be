@@ -33,6 +33,9 @@ export class Comment extends BaseEntity {
   @Prop({ enum: RATING })
   rating?: number;
 
+  @Prop({ default: 0 })
+  childNumber: number;
+
   @Prop({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Product',
@@ -43,6 +46,9 @@ export class Comment extends BaseEntity {
 
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User' })
   userId?: User;
+
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Comment', default: null })
+  parentId?: Comment;
 }
 
 export const CommentSchema = SchemaFactory.createForClass(Comment);

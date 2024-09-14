@@ -10,4 +10,9 @@ export class CommentQueryDto extends BaseQueryDto<Comment> {
   @IsString()
   @IsOptional()
   productId?: string;
+  @ApiPropertyOptional()
+  @Transform(({ value }) => (value ? String(value) : ''))
+  @IsString()
+  @IsOptional()
+  parentId?: string;
 }

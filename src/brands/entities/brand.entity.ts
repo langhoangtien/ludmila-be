@@ -1,6 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
 import { BaseEntity } from '../../base/entities/base.entity';
+import { IsOptional, IsString } from 'class-validator';
 
 export type BrandDocument = HydratedDocument<Brand>; // Thay thế CategoryDocument thành BrandDocument ở đây
 
@@ -18,6 +19,14 @@ export class Brand extends BaseEntity {
 
   @Prop({ required: true, unique: true })
   code: string;
+
+  @Prop()
+  @IsString()
+  @IsOptional()
+  image?: string;
+
+  @Prop()
+  description?: string;
 }
 
 export const BrandSchema = SchemaFactory.createForClass(Brand); // Thay thế CategorySchema thành BrandSchema ở đây

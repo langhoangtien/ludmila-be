@@ -23,7 +23,9 @@ export class Category extends BaseEntity {
     ref: 'Category',
     default: null,
   })
-  parentId: Category | null; // Kiểu dữ liệu của parentId là một Category hoặc null
+  parentId: Category | null;
+  @Prop()
+  icon?: string;
 }
 
 export const CategorySchema = SchemaFactory.createForClass(Category);

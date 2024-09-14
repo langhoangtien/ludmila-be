@@ -4,6 +4,7 @@ import {
   MinLength,
   MaxLength,
   Validate,
+  IsOptional,
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsSlug } from '../../utils/validators/slug-validate';
@@ -26,4 +27,12 @@ export class CreateBrandDto {
   @Validate(IsSlug)
   //   @IsUnique({ message: 'Code must be unique' })
   readonly code: string;
+  @ApiProperty()
+  @IsOptional()
+  @IsString()
+  readonly image?: string;
+
+  @ApiProperty({ example: 'Tinh dau thong do cedar la phan pham' })
+  @IsString()
+  readonly description?: string;
 }

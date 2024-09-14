@@ -32,4 +32,8 @@ export class CreateCategoryDto {
   @ApiProperty({ example: 'tpcn' })
   @IsOptional()
   readonly parentId?: string | null;
+
+  @ApiProperty({ example: 'tpcn' })
+  @IsOptional()
+  readonly icon?: string | null;
 }

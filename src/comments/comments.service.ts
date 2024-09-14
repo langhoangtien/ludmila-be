@@ -32,6 +32,9 @@ export class CommentsService extends BaseServiceAbstract<Comment> {
         createDto.productId,
         createDto.rating,
       );
+      if (createDto.parentId) {
+        await this.updateChildNumber(createDto.parentId);
+      }
       return newComment;
     } catch (error) {
       console.log(error);
@@ -60,7 +63,14 @@ export class CommentsService extends BaseServiceAbstract<Comment> {
     }
     return await this.commentRepository.update(id, updateDto);
   }
-
+  async updateChildNumber(id: string) {
+    const comment = await this.commentRepository.findById(id);
+    if (comment) {
+      return await this.commentRepository.update(id, {
+        childNumber: comment.childNumber + 1,
+      });
+    }
+  }
   async aggregate({
     limit,
     skip,
@@ -112,6 +122,7 @@ export class CommentsService extends BaseServiceAbstract<Comment> {
           rating: 1,
           productId: 1,
           createdAt: 1,
+          childNumber: 1,
           'user.firstName': 1,
           'user.lastName': 1,
         },
