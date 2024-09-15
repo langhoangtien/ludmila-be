@@ -11,6 +11,7 @@ import { NullableType } from '../utils/types/nullable.type';
 import { UsersService } from '../users/users.service';
 
 import { ProductsService } from '../products/products.service';
+import { create } from 'node:domain';
 
 @Injectable()
 export class CommentsService extends BaseServiceAbstract<Comment> {
@@ -75,7 +76,6 @@ export class CommentsService extends BaseServiceAbstract<Comment> {
     limit,
     skip,
     filter,
-    sort,
   }: {
     limit: number;
     skip: number;
@@ -125,7 +125,7 @@ export class CommentsService extends BaseServiceAbstract<Comment> {
                 },
               },
             },
-            { $sort: { createdAt: -1 } },
+            { $sort: { createdAt: 1 } },
             {
               $limit: 2,
             },
@@ -153,7 +153,7 @@ export class CommentsService extends BaseServiceAbstract<Comment> {
         },
       },
       {
-        $sort: sort,
+        $sort: { createdAt: 1 },
       },
       {
         $skip: skip,
