@@ -111,18 +111,42 @@ export class CommentsService extends BaseServiceAbstract<Comment> {
         },
       },
       {
+        $lookup: {
+          from: 'comments',
+          let: { parentId: '$_id' },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $and: [
+                    { $eq: ['$parentId', '$$parentId'] },
+                    { $eq: ['$deletedAt', null] },
+                  ],
+                },
+              },
+            },
+            {
+              $limit: 2,
+            },
+          ],
+          as: 'children',
+        },
+      },
+      {
         $unwind: { path: '$user', preserveNullAndEmptyArrays: true },
       },
       {
         $project: {
           _id: 1,
           content: 1,
+          children: 1,
           phoneNumber: 1,
           fullName: 1,
           rating: 1,
           productId: 1,
           createdAt: 1,
           childNumber: 1,
+          parentId: 1,
           'user.firstName': 1,
           'user.lastName': 1,
         },
