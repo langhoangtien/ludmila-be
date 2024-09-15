@@ -125,7 +125,7 @@ export class CommentsService extends BaseServiceAbstract<Comment> {
                 },
               },
             },
-            { $sort: { createdAt: 1 } },
+            { $sort: { createdAt: -1 } },
             {
               $limit: 2,
             },
@@ -153,7 +153,7 @@ export class CommentsService extends BaseServiceAbstract<Comment> {
         },
       },
       {
-        $sort: { createdAt: 1 },
+        $sort: { createdAt: -1 },
       },
       {
         $skip: skip,
