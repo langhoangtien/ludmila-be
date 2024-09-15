@@ -125,6 +125,7 @@ export class CommentsService extends BaseServiceAbstract<Comment> {
                 },
               },
             },
+            { $sort: { createdAt: -1 } },
             {
               $limit: 2,
             },
