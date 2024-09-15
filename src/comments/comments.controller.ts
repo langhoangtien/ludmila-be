@@ -75,10 +75,12 @@ export class CommentsController {
     const productId = query?.productId;
     const parentId = query?.parentId;
     const filterObject = {
-      productId: new mongoose.Types.ObjectId(productId),
       parentId: parentId ? new mongoose.Types.ObjectId(parentId) : null,
       ...filter,
     };
+    if (productId) {
+      filterObject.productId = new mongoose.Types.ObjectId(productId);
+    }
 
     const sort = {
       createdAt: -1,

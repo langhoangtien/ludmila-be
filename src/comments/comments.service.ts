@@ -129,7 +129,7 @@ export class CommentsService extends BaseServiceAbstract<Comment> {
               $limit: 2,
             },
           ],
-          as: 'children',
+          as: 'childrens',
         },
       },
       {
@@ -139,7 +139,7 @@ export class CommentsService extends BaseServiceAbstract<Comment> {
         $project: {
           _id: 1,
           content: 1,
-          children: 1,
+          childrens: 1,
           phoneNumber: 1,
           fullName: 1,
           rating: 1,
