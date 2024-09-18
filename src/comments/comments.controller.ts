@@ -67,11 +67,22 @@ export class CommentsController {
   @HttpCode(HttpStatus.OK)
   findAll(@Query() query: CommentQueryDto) {
     const skip = query?.skip ?? 0;
+    const sortQuery = query?.sort ?? { orderBy: 'createdAt', order: -1 };
+    if (sortQuery.order === '1' || sortQuery.order === 'ASC')
+      sortQuery.order = 1;
+    else sortQuery.order = -1;
+    const sort = {
+      [sortQuery.orderBy]: sortQuery.order,
+    };
     let limit = query?.limit ?? 5;
+    const createdAtQuery = query?.createdAt;
+    const ignoreId = query?.ignoreId;
+
     if (limit > 100) {
       limit = 100;
     }
     const filter = query?.filter ?? {};
+
     const productId = query?.productId;
     const parentId = query?.parentId;
     const filterObject = {
@@ -81,10 +92,11 @@ export class CommentsController {
     if (productId) {
       filterObject.productId = new mongoose.Types.ObjectId(productId);
     }
+    if (createdAtQuery && ignoreId) {
+      filterObject.createdAt = { $lte: new Date(createdAtQuery) };
+      filterObject._id = { $ne: new mongoose.Types.ObjectId(ignoreId) };
+    }
 
-    const sort = {
-      createdAt: -1,
-    };
     return this.commentsService.aggregate({
       skip,
       limit,

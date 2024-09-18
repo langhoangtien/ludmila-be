@@ -15,4 +15,16 @@ export class CommentQueryDto extends BaseQueryDto<Comment> {
   @IsString()
   @IsOptional()
   parentId?: string;
+
+  @ApiPropertyOptional()
+  @Transform(({ value }) => (value ? String(value) : ''))
+  @IsString()
+  @IsOptional()
+  ignoreId?: string;
+
+  @ApiPropertyOptional()
+  @Transform(({ value }) => (value ? String(value) : ''))
+  @IsString()
+  @IsOptional()
+  createdAt?: string;
 }
