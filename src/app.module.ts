@@ -33,6 +33,8 @@ import { BrandsModule } from './brands/brands.module';
 import { CommentsModule } from './comments/comments.module';
 import { APP_FILTER } from '@nestjs/core';
 import { GlobalExceptionFilter } from './exception-filters/global-exception.filter';
+import { OptionsModule } from './options/options.module';
+import { PagesModule } from './pages/pages.module';
 
 const infrastructureDatabaseModule = MongooseModule.forRootAsync({
   useClass: MongooseConfigService,
@@ -95,6 +97,8 @@ const infrastructureDatabaseModule = MongooseModule.forRootAsync({
     OrdersModule,
     BrandsModule,
     CommentsModule,
+    OptionsModule,
+    PagesModule,
     // ServeStaticModule.forRoot({
     //   rootPath: path.join(__dirname, '..', 'files'),
     //   serveStaticOptions: { index: false },

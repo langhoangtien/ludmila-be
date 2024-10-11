@@ -1,6 +1,7 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
   IsArray,
+  IsEnum,
   IsNumber,
   IsOptional,
   IsString,
@@ -112,4 +113,33 @@ export class RemoveManyQueryDto {
   @Transform(({ value }) => (value ? JSON.parse(value) : []))
   @IsArray()
   ids: string[];
+}
+export enum OrderEnum {
+  ASC = 1,
+  DESC = -1,
+}
+export class BaseQuery<T> {
+  @ApiPropertyOptional()
+  @IsOptional()
+  @Transform(({ value }) => (value ? Number(value) : 0))
+  @IsNumber()
+  skip: number = 0;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @Transform(({ value }) => (value ? Number(value) : 10))
+  @IsNumber()
+  limit: number = 10;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @Transform(({ value }) => (value ? String(value) : 'createdAt'))
+  @IsString()
+  orderBy: keyof T = 'createdAt' as keyof T;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsEnum(OrderEnum)
+  @IsNumber()
+  order: number = 1;
 }
