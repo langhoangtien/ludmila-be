@@ -11,6 +11,7 @@ import { NullableType } from '../utils/types/nullable.type';
 // import { PRODUCT_ALL } from '../fields-query-response/fields-query-response';
 import { CreateProductRatingDto } from './dto/create-rating.dto';
 import { RATING } from '../comments/entities/comment.entity';
+import { CategoriesService } from '../categories/categories.service';
 
 @Injectable()
 export class ProductsService extends BaseServiceAbstract<Product> {
@@ -18,6 +19,7 @@ export class ProductsService extends BaseServiceAbstract<Product> {
     @Inject('ProductsRepositoryInterface')
     private readonly productRepository: ProductsRepository,
     private readonly productVariantSevice: ProductVariantsService,
+    private readonly categoriesService: CategoriesService,
   ) {
     super(productRepository);
   }
@@ -142,7 +144,7 @@ export class ProductsService extends BaseServiceAbstract<Product> {
 
       {
         $project: {
-          category: { $arrayElemAt: ['$category', 0] },
+          category: 1,
           vendor: { $arrayElemAt: ['$vendor', 0] },
           country: { $arrayElemAt: ['$country', 0] },
           brand: { $arrayElemAt: ['$brand', 0] },
@@ -179,13 +181,25 @@ export class ProductsService extends BaseServiceAbstract<Product> {
     filter,
     sort,
     priceFilter = null,
+    categoryIds = [],
   }: {
     limit: number;
     skip: number;
     filter: any;
     sort: any;
     priceFilter?: any;
+    categoryIds?: string[];
   }) {
+    if (categoryIds.length > 0) {
+      const categories = await this.categoriesService.find({
+        $or: categoryIds.map((id) => ({
+          path: { $regex: id, $options: 'i' },
+        })),
+      });
+
+      const categoryIdsFromDb = categories.map((category) => category._id);
+      filter.category = { $in: categoryIdsFromDb };
+    }
     const countPipeline = [
       {
         $match: {

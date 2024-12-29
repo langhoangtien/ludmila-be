@@ -9,6 +9,7 @@ import {
   ProductVariant,
   ProductVariantSchema,
 } from '../product-variants/entities/product-variant.entity';
+import { CategoriesModule } from '../categories/categories.module';
 
 @Module({
   imports: [
@@ -25,10 +26,12 @@ import {
       },
     ]),
     ProductVariantsModule,
+    CategoriesModule,
   ],
   controllers: [ProductsController],
   providers: [
     ProductsService,
+
     {
       provide: 'ProductsRepositoryInterface',
       useClass: ProductsRepository,

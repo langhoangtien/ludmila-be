@@ -1,9 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
 import { CreatePageDto } from './dto/create-page.dto';
 import { UpdatePageDto } from './dto/update-page.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Page } from './entities/page.entity';
-import { Model } from 'mongoose';
+import mongoose, { Model } from 'mongoose';
 import { FindAllResponse } from '../utils/types/find-all-reponse.type';
 
 @Injectable()
@@ -26,20 +26,37 @@ export class PagesService {
       .find({ deletedAt: null })
       .skip(skip)
       .limit(limit)
-      .sort({ [orderBy]: order })
+      .sort({ [orderBy]: order as mongoose.SortOrder })
+      .select('-content -deletedAt -__v')
       .exec();
     return { count, items };
   }
-
-  findOne(id: string) {
-    return this.pageModel.findOne({
-      $or: [
-        { _id: id, deletedAt: null },
-        { slug: id, deletedAt: null },
-      ],
-    });
+  async find({ limit = 6, skip = 0, orderBy = 'createdAt', order = 1 }) {
+    return this.pageModel
+      .find({ deletedAt: null })
+      .skip(skip)
+      .limit(limit)
+      .sort({ [orderBy]: order as mongoose.SortOrder })
+      .select('-content -deletedAt -__v')
+      .exec();
   }
+  async findOne(idOrSlug: string) {
+    const isObjectId = mongoose.Types.ObjectId.isValid(idOrSlug);
+    const filter = isObjectId
+      ? { _id: new mongoose.Types.ObjectId(idOrSlug) }
+      : { slug: idOrSlug };
 
+    const result = await this.pageModel
+      .findOne({ ...filter, deletedAt: null })
+      .exec();
+    if (!result) {
+      throw new NotFoundException({
+        status: HttpStatus.NOT_FOUND,
+        error: `notFound`,
+      });
+    }
+    return result;
+  }
   async update(id: string, updatePageDto: UpdatePageDto) {
     await this.pageModel.updateOne(
       { _id: id, deletedAt: null },

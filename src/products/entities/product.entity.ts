@@ -94,12 +94,12 @@ export class Product extends BaseEntity {
   @Prop()
   brand: Brand;
   @Prop({
-    type: mongoose.Schema.Types.ObjectId,
+    type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Category' }],
     ref: 'Category',
     required: true,
   })
   @Type(() => Category)
-  category: Category;
+  category: Category[];
 
   // variants: ProductVariant[];
 }

@@ -87,8 +87,10 @@ export class CreateProductDto {
   readonly brand: string;
 
   // @ApiProperty({ example: '66385ea80bd2a75ff748e9f1' })
-  @IsString()
-  readonly category: string;
+
+  @IsArray()
+  @ArrayMinSize(1)
+  readonly category: string[];
 
   @ApiProperty({
     example: [

@@ -57,6 +57,8 @@ export class FileUpload {
   path: string;
   @Prop()
   originPath: string;
+  @Prop({ default: false })
+  noResize?: boolean;
 }
 
 export const FileUploadSchema = SchemaFactory.createForClass(FileUpload);

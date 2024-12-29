@@ -116,12 +116,14 @@ export class ProductsController {
     const sort = {
       [sortQuery.orderBy]: sortQuery.order,
     };
+
     return this.productsService.aggregate({
       skip: query?.skip ?? 0,
       limit: query?.limit ?? 10,
       filter,
       sort,
       priceFilter,
+      categoryIds: category,
     });
   }
 

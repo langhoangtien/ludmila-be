@@ -42,6 +42,25 @@ export class FilesController {
     return this.filesService.create(file);
   }
 
+  @UseGuards(AuthGuard('jwt'))
+  @Post('upload-origin')
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        file: {
+          type: 'string',
+          format: 'binary',
+        },
+      },
+    },
+  })
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadFileOrigin(@UploadedFile() file: Express.Multer.File) {
+    return this.filesService.create(file);
+  }
+
   @ApiConsumes('multipart/form-data')
   @ApiBody({
     schema: {

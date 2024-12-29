@@ -68,6 +68,7 @@ export class CountriesController {
     groups: ['admin'],
   })
   @Get(':id')
+  @Public()
   @HttpCode(HttpStatus.OK)
   @ApiParam({
     name: 'id',

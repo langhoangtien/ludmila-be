@@ -21,7 +21,7 @@ const FilesLocalModule = MulterModule.registerAsync({
   useFactory: (configService: ConfigService<AllConfigType>) => {
     return {
       fileFilter: (request, file, callback) => {
-        if (!file.originalname.match(/\.(jpg|jpeg|png|gif)$/i)) {
+        if (!file.originalname.match(/\.(jpg|jpeg|png|gif|webp)$/i)) {
           return callback(
             new UnprocessableEntityException({
               status: HttpStatus.UNPROCESSABLE_ENTITY,

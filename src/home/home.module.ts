@@ -6,6 +6,7 @@ import { CategoriesModule } from '../categories/categories.module';
 import { BrandsModule } from '../brands/brands.module';
 import { CountriesModule } from '../countries/countries.module';
 import { ProductsModule } from '../products/products.module';
+import { PagesModule } from '../pages/pages.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { ProductsModule } from '../products/products.module';
     BrandsModule,
     CountriesModule,
     ProductsModule,
+    PagesModule,
   ],
   controllers: [HomeController],
   providers: [HomeService],

@@ -36,4 +36,7 @@ export class CreateCategoryDto {
   @ApiProperty({ example: 'tpcn' })
   @IsOptional()
   readonly icon?: string | null;
+  @ApiProperty()
+  @IsOptional()
+  readonly image?: string | null;
 }

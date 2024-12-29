@@ -135,7 +135,7 @@ export class FilesService {
 
     const metadataHeight = metadata.height;
     const metadataWidth = metadata.width;
-    const dimensions: number[] = [250, 450, 800, 0];
+    const dimensions: number[] = [80, 250, 450, 800, 0];
 
     const resizeImages = dimensions.map(async (dimension) => {
       let width = metadataWidth;
@@ -203,6 +203,32 @@ export class FilesService {
     }
   }
 
+  async createOrigin(file: Express.Multer.File): Promise<FileUpload> {
+    try {
+      if (!file) {
+        throw new UnprocessableEntityException({
+          status: HttpStatus.UNPROCESSABLE_ENTITY,
+          errors: {
+            file: 'selectFile',
+          },
+        });
+      }
+
+      // PHAI THAY
+      return await this.fileRepository.create({
+        originPath: file.filename,
+        path: file.filename,
+        noResize: true,
+      });
+    } catch (error) {
+      throw new UnprocessableEntityException({
+        status: HttpStatus.UNPROCESSABLE_ENTITY,
+        errors: {
+          file: 'selectFile',
+        },
+      });
+    }
+  }
   async uploadFiles(files: Array<Express.Multer.File>): Promise<FileUpload[]> {
     if (!files.length) {
       throw new HttpException(

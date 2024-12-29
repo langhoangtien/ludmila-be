@@ -18,6 +18,9 @@ export class Category extends BaseEntity {
   @Prop({ required: true, unique: true })
   code: string;
 
+  @Prop({ index: true, maxlength: 100 })
+  path?: string;
+
   @Prop({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Category',
@@ -26,6 +29,8 @@ export class Category extends BaseEntity {
   parentId: Category | null;
   @Prop()
   icon?: string;
+  @Prop()
+  image?: string;
 }
 
 export const CategorySchema = SchemaFactory.createForClass(Category);

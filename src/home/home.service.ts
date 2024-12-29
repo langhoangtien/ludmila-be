@@ -5,6 +5,7 @@ import { CategoriesService } from '../categories/categories.service';
 import { BrandsService } from '../brands/brands.service';
 import { CountriesService } from '../countries/countries.service';
 import { ProductsService } from '../products/products.service';
+import { PagesService } from '../pages/pages.service';
 
 @Injectable()
 export class HomeService {
@@ -14,6 +15,7 @@ export class HomeService {
     private brandService: BrandsService,
     private countryService: CountriesService,
     private productService: ProductsService,
+    private pageService: PagesService,
   ) {}
 
   appInfo() {
@@ -29,7 +31,14 @@ export class HomeService {
   }
 
   async getMenu() {
-    return this.categoryService.getCategoriesWithChild();
+    const pages = await this.pageService.find({
+      limit: 6,
+      skip: 0,
+      orderBy: 'createdAt',
+      order: 1,
+    });
+    const menu = await this.categoryService.getCategoriesWithChild();
+    return { pages: pages, menu: menu };
   }
   async getHomeData() {
     const topDiscountProducts = await this.productService.aggregate({
