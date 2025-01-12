@@ -34,8 +34,12 @@ lerna-debug.log*
 !.vscode/launch.json
 !.vscode/extensions.json
 
+# Ignore tất cả nội dung trong thư mục files
+/files/*
+
+# Nhưng vẫn bao gồm thư mục files
+!/files
 .data
-/files
 /docker-data
 .env
 /ormconfig.json

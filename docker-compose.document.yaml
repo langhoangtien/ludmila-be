@@ -18,6 +18,8 @@ services:
       dockerfile: document.Dockerfile
     ports:
       - ${APP_PORT}:${APP_PORT}
+    volumes:
+      - ./files:/app/files
 
 volumes:
   boilerplate-mongo-db:
