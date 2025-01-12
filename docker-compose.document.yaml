@@ -19,7 +19,7 @@ services:
     ports:
       - ${APP_PORT}:${APP_PORT}
     volumes:
-      - ./files:/app/files
+      - ./files:/usr/src/app/files
 
 volumes:
   boilerplate-mongo-db:
