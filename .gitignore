@@ -38,7 +38,7 @@ lerna-debug.log*
 /files/*
 
 # Nhưng vẫn bao gồm thư mục files
-!/files
+!/files/.gitkeep 
 .data
 /docker-data
 .env
