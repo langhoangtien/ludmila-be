@@ -93,7 +93,6 @@ export class CommentsService extends BaseServiceAbstract<Comment> {
         $count: 'total',
       },
     ]);
-    console.log(sort);
 
     const items = await this.commentRepository.aggregate([
       {
@@ -126,7 +125,7 @@ export class CommentsService extends BaseServiceAbstract<Comment> {
                 },
               },
             },
-            { $sort: { createdAt: 1 } },
+            { $sort: { createdAt: -1 } },
             {
               $limit: 2,
             },
