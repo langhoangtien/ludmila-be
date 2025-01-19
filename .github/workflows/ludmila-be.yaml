@@ -22,5 +22,6 @@ jobs:
           port: 22
           script: |
             cd /home/api.ludmila.vn
+            git pull
             docker-compose -f docker-compose.document.yaml up -d --build
             sudo systemctl restart nginx
