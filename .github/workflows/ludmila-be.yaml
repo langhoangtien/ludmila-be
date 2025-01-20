@@ -22,6 +22,9 @@ jobs:
           port: 22
           script: |
             cd /home/api.ludmila.vn
-            git pull
+            git fetch origin
+            git checkout dev  # Đảm bảo checkout đúng nhánh
+            git reset --hard origin/dev  # Reset code để đồng bộ với remote
+            docker-compose -f docker-compose.document.yaml down  # Dừng container cũ
             docker-compose -f docker-compose.document.yaml up -d --build
-            sudo systemctl restart nginx
+            systemctl restart nginx  # Không cần sudo nếu dùng root

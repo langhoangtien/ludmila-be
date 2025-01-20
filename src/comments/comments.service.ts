@@ -150,6 +150,7 @@ export class CommentsService extends BaseServiceAbstract<Comment> {
           parentId: 1,
           'user.firstName': 1,
           'user.lastName': 1,
+          'user.photo': 1,
         },
       },
       {
